@@ -1,11 +1,14 @@
 # kursProjectFirstSem
-
+##Linux
 Start it with 
-`gcc example.cpp -o example -pthread`
+`gcc NAME_OF_FILE -o ANY_IDENTIFICATOR -pthread`
 
 after that use 
-`./example`
+`./ANY_IDENTIFICATOR`
 
-This program start work? and you should write any char after ~1  second, because it write to file 
-all time what console is running. 
-Open file `out.txt` and look at result.
+##Windows
+
+Open Visual Studio, create new project and start `NAME_OF_FILE` file.
+
+
+`NAME_OF_FILE` should be the same as `*.cpp`. FOr example `example.cpp`

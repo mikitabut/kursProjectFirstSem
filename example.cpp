@@ -4,7 +4,8 @@
 #include <time.h>
 
 int full;
-pthread_mutex_t mx;
+pthread_mutex_t mx1;
+pthread_mutex_t mx2;
 pthread_cond_t cond;
 int data;
 FILE *f;
@@ -21,11 +22,11 @@ void *producer(void *)
     while (1)
     {
         int t = produce();
-        pthread_mutex_lock(&mx);
+        pthread_mutex_lock(&mx1);
         while (full)
         {
             //printf("Wait consumer(Producer)\n");
-            pthread_cond_wait(&cond, &mx);
+            pthread_cond_wait(&cond, &mx1);
         }
         data = t;
         full = 1;
@@ -34,7 +35,7 @@ void *producer(void *)
 
         //printf("Work(Producer)\n");
         pthread_cond_signal(&cond);
-        pthread_mutex_unlock(&mx);
+        pthread_mutex_unlock(&mx1);
     }
     return NULL;
 }
@@ -42,24 +43,23 @@ void *producer(void *)
 void *consumer(void *)
 {
     while (1)
-        while (1)
+    {
+        int t;
+        pthread_mutex_lock(&mx2);
+        while (!full)
         {
-            int t;
-            pthread_mutex_lock(&mx);
-            while (!full)
-            {
-                //printf("Wait producer(Consumer)\n");
-                pthread_cond_wait(&cond, &mx);
-            }
-            t = data;
-            writeToFile(t, t * t * t, false);
-            full = 0;
-
-            //printf("Work(Consumer)\n");
-
-            pthread_cond_signal(&cond);
-            pthread_mutex_unlock(&mx);
+            //printf("Wait producer(Consumer)\n");
+            pthread_cond_wait(&cond, &mx2);
         }
+        t = data;
+        writeToFile(t, t * t * t, false);
+        full = 0;
+
+        //printf("Work(Consumer)\n");
+
+        pthread_cond_signal(&cond);
+        pthread_mutex_unlock(&mx2);
+    }
     return NULL;
 }
 
@@ -84,7 +84,7 @@ int main()
     pthread_t threads[2];
 
     f = fopen("out.txt", "w");
-
+    printf("Enter any char to close the program\n");
     pthread_create(&threads[0], NULL, producer, NULL);
     pthread_create(&threads[1], NULL, consumer, NULL);
 
