@@ -11,6 +11,7 @@ FILE *f;
 
 int produce()
 {
+    nanosleep((const struct timespec[]){{0, 500000000L}}, NULL);
     return rand() % 200;
 }
 void writeToFile(int cons, int processing, bool prod);
@@ -29,12 +30,11 @@ void *producer(void *)
         data = t;
         full = 1;
 
-        writeToFile(t, 0, true);   
-             
+        writeToFile(t, 0, true);
+
         //printf("Work(Producer)\n");
         pthread_cond_signal(&cond);
         pthread_mutex_unlock(&mx);
-        nanosleep((const struct timespec[]){{0, 500000000L}}, NULL);        
     }
     return NULL;
 }
@@ -42,27 +42,24 @@ void *producer(void *)
 void *consumer(void *)
 {
     while (1)
-    while (1)
-    {
-        int t;
-        pthread_mutex_lock(&mx);
-        while (!full)
+        while (1)
         {
-            //printf("Wait producer(Consumer)\n");
-            pthread_cond_wait(&cond, &mx);
-        }
-        t = data;
-        writeToFile(t, t * t * t, false);
-        full = 0;
-        
-        //printf("Work(Consumer)\n");
+            int t;
+            pthread_mutex_lock(&mx);
+            while (!full)
+            {
+                //printf("Wait producer(Consumer)\n");
+                pthread_cond_wait(&cond, &mx);
+            }
+            t = data;
+            writeToFile(t, t * t * t, false);
+            full = 0;
 
-        pthread_cond_signal(&cond);
-        pthread_mutex_unlock(&mx);
-        nanosleep((const struct timespec[]){{0, 500000000L}}, NULL);
-        
-        
-    }
+            //printf("Work(Consumer)\n");
+
+            pthread_cond_signal(&cond);
+            pthread_mutex_unlock(&mx);
+        }
     return NULL;
 }
 
@@ -71,11 +68,13 @@ void writeToFile(int cons, int processing, bool prod)
 
     if (prod)
     {
+        printf("produced %d\n", cons);
         fprintf(f, "produced %d\n", cons);
     }
     else
     {
         fprintf(f, "consumed %d\t\tprocessed %d\n", cons, processing);
+        printf("consumed %d\t\tprocessed %d\n", cons, processing);
     }
 }
 
