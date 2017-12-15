@@ -1,10 +1,10 @@
 # kursProjectFirstSem
 
 Start it with 
-gcc example.cpp -o example -pthread
+`gcc example.cpp -o example -pthread`
 
 after that use 
-./example
+`./example`
 
 This program start work? and you should write any char after ~1  second, because it write to file 
 all time what console is running. 
